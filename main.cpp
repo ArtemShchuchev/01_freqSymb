@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <unordered_map>
 #include <functional>
 
 void printHeader();
@@ -10,33 +11,33 @@ int main()
 
 	const std::string inStr("Hello world!!");
 	std::cout << "[IN]: " << inStr << std::endl;
-	std::cout << "[OUT]:" << std::endl;
-
-	// не сортированный словарь
-	std::unordered_map<char, int> unordMap;
-	for (const char& ch : inStr)
-	{
-		if (auto search = unordMap.find(ch); search != unordMap.end())
-			++search->second;	// если словарь содержит "char", то увеличим данные
-		else
-			unordMap[ch] = 1;	// если "char" нет -> добавим с единичкой в данных
-		
-	}
 
 	// словарь с поддержкой дубликатов и сортировкой по убыванию
 	std::multimap<int, char, std::greater<int>> multiMap;
-	for (const auto& [key, elem] : unordMap)
-	{
-		// теперь словарь отсортирован и ключом будут элементы
-		multiMap.insert({ elem, key });
+	if (!inStr.empty()) {
+		// не сортированный словарь
+		std::unordered_map<char, int> unordMap;
+		for (const char& ch : inStr) {
+			++unordMap[ch];
+			/*
+			if (auto search = unordMap.find(ch); search != unordMap.end())
+				++search->second;	// если словарь содержит "char", то увеличим данные
+			else
+				unordMap[ch] = 1;	// если "char" нет -> добавим с единичкой в данных
+			*/
+		}
+
+		for (const auto& [ch, count] : unordMap) {
+			// теперь словарь отсортирован и ключом будут повторы
+			multiMap.insert({ count, ch });
+		}
 	}
 
-	unordMap.clear();	// этот словарь больше не нужен
 
+	std::cout << "[OUT]:\n";
 	// вывожу словарь в консоль (данные : ключи)
-	for (const auto& elem : multiMap)
-	{
-		std::cout << elem.second << ": " << elem.first << std::endl;
+	for (const auto& [count, ch] : multiMap) {
+		std::cout << ch << ": " << count << std::endl;
 	}
 
 
@@ -45,8 +46,7 @@ int main()
 
 // функции
 // заголовок 
-void printHeader()
-{
+void printHeader() {
 	using namespace std;
 	setlocale(LC_ALL, "Russian");   // задаём русский текст
 	system("chcp 1251");            // настраиваем кодировку консоли
